@@ -3,14 +3,17 @@ name: Deploy to GitHub Pages
 on:
   push:
     branches:
-      - main  # or 'master' if that's your default branch
+      - main  # change to 'master' if that’s your default branch
+
+permissions:
+  contents: write  # needed for pushing to gh-pages
 
 jobs:
   build:
     runs-on: ubuntu-latest
 
     steps:
-      - name: Checkout repository
+      - name: Checkout
         uses: actions/checkout@v4
 
       - name: Setup Node.js
@@ -24,8 +27,7 @@ jobs:
       - name: Build project
         run: npm run build
 
-      # Auto-detect build output folder
-      - name: Find build folder
+      - name: Detect build folder
         id: detect
         run: |
           if [ -d "dist" ]; then
@@ -39,8 +41,9 @@ jobs:
             exit 1
           fi
 
-      - name: Deploy to GitHub Pages
+      - name: Deploy
         uses: peaceiris/actions-gh-pages@v3
         with:
           github_token: ${{ secrets.GITHUB_TOKEN }}
+          publish_branch: gh-pages
           publish_dir: ${{ steps.detect.outputs.folder }}
